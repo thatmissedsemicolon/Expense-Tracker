@@ -1,25 +1,37 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect } from 'react';
+import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
+import { useUserContext } from './context/userContext';
+import Home from './container/Home';
+import { Login, Signup, ForgotPassword } from './auth';
+import { fetchUser } from './utils/fetchUser';
+import Loader from './container/Loader';
 
-function App() {
+const App = () => {
+
+  const { loading } = useUserContext(); 
+  const navigate = useNavigate();
+
+  const user = fetchUser();
+
+  useEffect(() => {
+    if(!user) {
+      navigate('/login');
+    }
+  },[user])
+
+  if(loading) return <Loader /> 
+  
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    <Routes>
+      {user && 
+        <Route path = '/login' element = {<Navigate replace to="/" />}/>
+      }
+      <Route path ='/login' element={<Login />} />
+      <Route path="/signup" element= {<Signup />}/>
+      <Route path="/forgotpassword" element= {<ForgotPassword />}/>
+      <Route path='/*' element={<Home />} />
+    </Routes>
+  )
 }
 
 export default App;
